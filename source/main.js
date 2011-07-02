@@ -173,7 +173,7 @@ components: [
 										{
 											name:		"generated",
 											kind:		enyo.Control,
-											content:	""
+											content:	"<br/>"
 										}
 									]
 								},
@@ -240,10 +240,21 @@ generate: function()
 	if (uri.length > 0 && pass.length > 0) {
 		domain = (new SPH_DomainExtractor()).extractDomain(uri);
 
+		this.$.generated.setAllowHtml(false);
 		this.$.generated.setContent(new String(new SPH_HashedPassword(pass, domain)));
 	} else {
-		this.$.generated.setContent();
+		this.$.generated.setAllowHtml(true);
+		this.$.generated.setContent('<br />');
 	}
+},
+
+reset: function()
+{
+	this.$.domain.setValue('');
+	this.$.password.setValue('');
+
+	this.$.generated.setAllowHtml(true);
+	this.$.generated.setContent('<br />');
 }
 
 
