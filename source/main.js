@@ -22,6 +22,8 @@
 
 // TODO	Allow other apps to call this as using enyo.CrossAppUI?
 
+// TODO	Plug in the search
+
 
 enyo.kind(
 {
@@ -81,17 +83,35 @@ components: [
 					{
 						kind:							enyo.FadeScroller,
 						horizontal:						false,
-						name:							"domains",
-						flex:							1
-// TODO	Fill out a list of recent domains, and allow the user to reorder them
-//		or to swipe to delete
+						flex:							1,
 
-// TODO	At launch time look for a domain in the launch parameters and add it to
-//		the list, and select it by default
+						components: [{
+							name:						"domains",
+							kind:						enyo.VirtualList,
+							onSetupRow:					"setupDomain",
 
-// TODO	Show a "Add Domain" item, and selected it by default.  If there is a
-//		value in the clipboard that looks like it might be a domain or URI then
-//		fill out the domain by default with that value
+							components: [{
+								onclick:				"selectDomain",
+								onConfirm:				"deleteDomain",
+
+								name:					"item",
+								kind:					enyo.SwipeableItem,
+								className:				"toaster-item",
+								layoutKind:				"VFlexLayout",
+								pack:					"center",
+								tapHighlight:			true,
+								components: [
+									{
+										name:			"title",
+										className:		"url-item-title enyo-text-ellipsis"
+									},
+									{
+										name:			"url",
+										className:		"url-item-url enyo-item-ternary enyo-text-ellipsis"
+									}
+								]
+							}]
+                        }]
 					}
 				]
 			},
@@ -100,8 +120,6 @@ components: [
 				name:									"details",
 				flex:									1,
 				align:									"center",
-
-// TODO	Add a timer to clear the password from the clipboard
 
 				components: [{
 					kind:								enyo.VFlexBox,
@@ -202,12 +220,25 @@ components: [
 create: function()
 {
 	this.value = null;
+	try {
+		this.domains = enyo.json.parse(enyo.getCookie("recentdomains"));
+		this.log(this.domains);
+	} catch(e) {
+		this.domains = [];
+	}
 
 	this.inherited(arguments);
 
 	enyo.keyboard.setResizesWindow(true);
+},
 
-	// TODO	Move this to an onactive callback?
+rendered: function()
+{
+	this.inherited(arguments);
+
+	this.$.domain.forceFocusEnableKeyboard();
+	this.change();
+
 	/*
 		Set the domain to whatever is in the clipboard by default assuming that
 		a user has just copied a url.
@@ -217,14 +248,6 @@ create: function()
 		this.$.domain.setValue(value);
 		this.change();
 	}));
-},
-
-rendered: function()
-{
-	this.inherited(arguments);
-
-	this.$.domain.forceFocusEnableKeyboard();
-	this.change();
 },
 
 beforeMenu: function(sender, e)
@@ -271,8 +294,20 @@ change: function()
 
 copy: function()
 {
+	this.clipboardValue = this.value;
 	enyo.dom.setClipboard(this.value);
-	enyo.windows.addBannerMessage($L("Password Copied"), "{}");
+	enyo.windows.addBannerMessage($L("Password Copied.  Will clear in 30s"), "{}");
+
+	setTimeout(enyo.bind(this, this.clear), 30000);
+
+	/* Add the domain to the recent domain list */
+	if (-1 == enyo.indexOf(this.$.domain.getValue(), this.domains)) {
+		this.domains.push(this.$.domain.getValue());
+
+		/* Save the list */
+		enyo.setCookie("recentdomains", enyo.json.stringify(this.domains));
+		this.$.domains.refresh();
+	}
 },
 
 reset: function()
@@ -284,8 +319,66 @@ reset: function()
 	this.$.generated.setContent('<br />');
 
 	this.change();
-}
+},
 
+open: function()
+{
+	var domain = this.$.domain.getValue();
+
+	if (0 != domain.indexOf("http://")) {
+		window.open("http://" + domain);
+	} else {
+		window.open(domain);
+	}
+},
+
+clear: function()
+{
+	enyo.dom.getClipboard(enyo.bind(this, function(value)
+	{
+		if (this.clipboardValue && this.clipboardValue == value) {
+			this.clipboardValue = null;
+
+			enyo.dom.setClipboard(" ");
+			enyo.windows.addBannerMessage($L("Cleared clipboard."), "{}");
+		}
+	}));
+},
+
+setupDomain: function(sender, index)
+{
+	var domain;
+
+	if (!(domain = this.domains[index])) {
+		return(false);
+	}
+
+	this.$.url.setContent(domain);
+	this.$.title.setContent((new SPH_DomainExtractor()).extractDomain(domain));
+
+	return(true);
+},
+
+selectDomain: function(sender, e, index)
+{
+	var domain;
+
+	if ((domain = this.domains[index])) {
+		this.$.domain.setValue(domain);
+		this.change();
+	}
+},
+
+deleteDomain: function(sender, index)
+{
+this.log('Delete domain', index);
+	if (this.domains[index]) {
+		this.domains.splice(index, 1);
+this.log(this.domains);
+		enyo.setCookie("recentdomains", enyo.json.stringify(this.domains));
+		this.$.domains.refresh();
+	}
+}
 
 });
 
