@@ -238,16 +238,6 @@ rendered: function()
 
 	this.$.domain.forceFocusEnableKeyboard();
 	this.change();
-
-	/*
-		Set the domain to whatever is in the clipboard by default assuming that
-		a user has just copied a url.
-	*/
-	enyo.dom.getClipboard(enyo.bind(this, function(value)
-	{
-		this.$.domain.setValue(value);
-		this.change();
-	}));
 },
 
 beforeMenu: function(sender, e)
