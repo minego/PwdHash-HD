@@ -22,9 +22,6 @@
 
 // TODO	Allow other apps to call this as using enyo.CrossAppUI?
 
-// TODO	Plug in the search
-
-
 enyo.kind(
 {
 
