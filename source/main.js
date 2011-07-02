@@ -20,6 +20,8 @@
 
 // TODO	Show info about PwdHash
 
+// TODO	Allow other apps to call this as using enyo.CrossAppUI?
+
 
 enyo.kind(
 {
@@ -99,19 +101,7 @@ components: [
 				flex:									1,
 				align:									"center",
 
-// TODO	Show the details for a domain here...
-//
-//		Show the domain name field (filled out if a domain is selected on the
-//		left), the password and the generated hash
-
-// TODO	Show a "Copy" button that puts the hashed password into the clipboard
-//		(with a timer to clear it)
-
-// TODO	Show an X on the right of each input to allow clearing it easily
-
-// TODO	Generate the password as the inputs change
-
-// TODO	Select the password field on launch?
+// TODO	Add a timer to clear the password from the clipboard
 
 				components: [{
 					kind:								enyo.VFlexBox,
@@ -132,38 +122,40 @@ components: [
 						},
 						{
 							kind:						enyo.Control,
-							className:					"enyo-preferences-box",
+							style:						"margin: 23px auto 0; width: 85%;",
+
 							components: [
 								{
 									kind:				enyo.RowGroup,
-									caption:			$L("Password Details"),
-									components: [
-										{
-											name:		"domain",
-											kind:		enyo.Input,
-											hint:		$L("Site Address"),
+									caption:			$L("Domain"),
+									components: [{
+										name:			"domain",
+										kind:			enyo.Input,
+										hint:			$L("Site Address"),
 
-											autocorrect:false,
-											inputType:	"url",
-											changeOnInput:
+										autocorrect:	false,
+										inputType:		"url",
+										changeOnInput:	true,
+										selectAllOnFocus:
 														true,
-											selectAllOnFocus:
-														true,
-											onchange:	"generate"
-										},
-										{
-											name:		"password",
-											kind:		enyo.PasswordInput,
-											hint:		$L("Password"),
+										autoCapitalize:	"lowercase",
+										onchange:		"change"
+									}]
+								},
+								{
+									kind:				enyo.RowGroup,
+									caption:			$L("Master Password"),
+									components: [{
+										name:			"password",
+										kind:			enyo.PasswordInput,
+										hint:			$L("Password"),
 
-											autocorrect:false,
-											changeOnInput:
+										autocorrect:	false,
+										changeOnInput:	true,
+										selectAllOnFocus:
 														true,
-											selectAllOnFocus:
-														true,
-											onchange:	"generate"
-										}
-									]
+										onchange:		"change"
+									}]
 								},
 
 								{
@@ -180,20 +172,23 @@ components: [
 
 								{
 									kind:				enyo.Button,
-									caption:			$L("Copy Generated Password"),
+									caption:			$L("Copy Password"),
+									name:				"copy",
 									onclick:			"copy"
 								},
 
 								{
 									kind:				enyo.Button,
 									caption:			$L("Reset Details"),
+									name:				"reset",
 									onclick:			"reset"
 								},
 
 								{
 									kind:				enyo.Button,
-									caption:			$L("Open Page"),
-									onclick:			"Launch Browser"
+									caption:			$L("Launch Browser"),
+									name:				"open",
+									onclick:			"open"
 								}
 							]
 						}
@@ -206,9 +201,30 @@ components: [
 
 create: function()
 {
+	this.value = null;
+
 	this.inherited(arguments);
 
 	enyo.keyboard.setResizesWindow(true);
+
+	// TODO	Move this to an onactive callback?
+	/*
+		Set the domain to whatever is in the clipboard by default assuming that
+		a user has just copied a url.
+	*/
+	enyo.dom.getClipboard(enyo.bind(this, function(value)
+	{
+		this.$.domain.setValue(value);
+		this.change();
+	}));
+},
+
+rendered: function()
+{
+	this.inherited(arguments);
+
+	this.$.domain.forceFocusEnableKeyboard();
+	this.change();
 },
 
 beforeMenu: function(sender, e)
@@ -227,11 +243,7 @@ closeAppMenu: function()
 	this.$.AppMenu.close();
 },
 
-resizeHandler: function()
-{
-},
-
-generate: function()
+change: function()
 {
 	var uri		= this.$.domain.getValue();
 	var pass	= this.$.password.getValue();
@@ -239,13 +251,28 @@ generate: function()
 
 	if (uri.length > 0 && pass.length > 0) {
 		domain = (new SPH_DomainExtractor()).extractDomain(uri);
+		this.value = new String(new SPH_HashedPassword(pass, domain.toLowerCase()));
+	} else {
+		this.value = null;
+	}
 
+	if (this.value) {
 		this.$.generated.setAllowHtml(false);
-		this.$.generated.setContent(new String(new SPH_HashedPassword(pass, domain)));
+		this.$.generated.setContent(this.value);
 	} else {
 		this.$.generated.setAllowHtml(true);
 		this.$.generated.setContent('<br />');
 	}
+
+	this.$.open.setDisabled(uri.length == 0);
+	this.$.reset.setDisabled(pass.length == 0 && uri.length == 0);
+	this.$.copy.setDisabled(!this.value);
+},
+
+copy: function()
+{
+	enyo.dom.setClipboard(this.value);
+	enyo.windows.addBannerMessage($L("Password Copied"), "{}");
 },
 
 reset: function()
@@ -255,6 +282,8 @@ reset: function()
 
 	this.$.generated.setAllowHtml(true);
 	this.$.generated.setContent('<br />');
+
+	this.change();
 }
 
 
