@@ -1,0 +1,11 @@
+{
+	"id":			"net.minego.pwdhash",
+	"version":		"autoversion",
+	"vendor":		"minego",
+	"type":			"web",
+	"main":			"index.html",
+	"title":		"PwdHash",
+	"icon":			"icon.png",
+	"splashicon":	"icon-256x256.png",
+	"uiRevision":	2
+}
