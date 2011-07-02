@@ -34,6 +34,8 @@
 	Treated as a string, it is the hashed password.
 */
 
+var SPH_kPasswordPrefix = "@@";
+
 function SPH_HashedPassword(password, realm)
 {
 	var hashedPassword = this._getHashedPassword(password, realm);
