@@ -362,6 +362,8 @@ selectDomain: function(sender, e, index)
 	if ((domain = this.domains[index])) {
 		this.$.domain.setValue(domain);
 		this.change();
+
+		this.$.password.forceFocusEnableKeyboard();
 	}
 },
 
