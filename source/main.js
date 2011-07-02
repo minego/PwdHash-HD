@@ -75,8 +75,8 @@ components: [
 						kind:							enyo.SearchInput,
 						hint:							$L("Search"),
 
-						onchange:						"doSearch",
-						onCancel:						"doSearch",
+						onchange:						"searchDomain",
+						onCancel:						"searchDomain",
 						changeOnInput:					true
 					},
 
@@ -356,6 +356,12 @@ setupDomain: function(sender, index)
 	this.$.url.setContent(domain);
 	this.$.title.setContent((new SPH_DomainExtractor()).extractDomain(domain));
 
+	if (!this.filter || -1 != domain.toLowerCase().indexOf(this.filter)) {
+		this.$.item.setShowing(true);
+	} else {
+		this.$.item.setShowing(false);
+	}
+
 	return(true);
 },
 
@@ -371,13 +377,21 @@ selectDomain: function(sender, e, index)
 
 deleteDomain: function(sender, index)
 {
-this.log('Delete domain', index);
 	if (this.domains[index]) {
 		this.domains.splice(index, 1);
-this.log(this.domains);
 		enyo.setCookie("recentdomains", enyo.json.stringify(this.domains));
 		this.$.domains.refresh();
 	}
+},
+
+searchDomain: function(sender, e)
+{
+	this.filter = (this.$.searchBox.getValue() || "").toLowerCase();
+	if (!this.filter.length) {
+		this.filter = null;
+	}
+
+	this.$.domains.refresh();
 }
 
 });
