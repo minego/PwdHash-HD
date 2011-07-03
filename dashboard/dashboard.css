@@ -1,0 +1,28 @@
+body
+{
+	background:				transparent;
+}
+
+.notification
+{
+	padding:				0 5px;
+	background:				transparent;
+
+	margin:					0 0 0 8px;
+	color:					#fff;
+	font-size:				14px;
+	line-height:			1.3em;
+
+	text-overflow:			ellipsis;
+}
+
+.notification .title
+{
+	font-weight:			bold;
+	font-size:				16px;
+	line-height:			1.4em;
+
+	text-overflow:			ellipsis;
+}
+
+

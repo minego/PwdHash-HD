@@ -22,8 +22,6 @@
 
 // TODO	Allow other apps to call this as using enyo.CrossAppUI?
 
-// TODO	Use a dashboard to show "Password Copied.  Tap to clear."
-
 enyo.kind(
 {
 
@@ -47,13 +45,6 @@ components: [
 
 		components: [
 		]
-	},
-
-	{
-		name:											"dashboard",
-		kind:											enyo.Dashboard,
-		onTap:											"clear",
-		onUserClose:									"clear"
 	},
 
 	{
@@ -286,15 +277,11 @@ change: function()
 
 copy: function()
 {
-	this.clipboardValue = this.value;
-	enyo.dom.setClipboard(this.value);
-
-	enyo.windows.addBannerMessage($L("Password Copied"), "{}");
-	this.$.dashboard.setLayers([{
-		icon:		"lock-small.png",
-		title:		"Password Copied",
-		text:		"Tap to clear clipboard"
-	}]);
+	enyo.windows.openDashboard("../dashboard/index.html", "dash", {
+		value:						this.value
+	}, {
+		clickableWhenLocked:		true
+	});
 
 	if (-1 == enyo.indexOf(this.$.domain.getValue(), this.domains)) {
 		this.domains.push(this.$.domain.getValue());
@@ -327,17 +314,9 @@ open: function()
 	}
 },
 
-// TODO	GRR, setClipboard() doesn't work at all without a body... weird
-//
-//		Figure out how to do a noWindow app and keep a hidden document around
-//		until the dashboard is cleared?
 clear: function()
 {
-	/* An empty string doesn't work, so use a space */
-	enyo.dom.setClipboard(" ");
-
-	this.$.dashboard.pop();
-	enyo.windows.addBannerMessage($L("Cleared clipboard."), "{}");
+	enyo.application.launcher.clear();
 },
 
 setupDomain: function(sender, index)
