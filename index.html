@@ -14,11 +14,11 @@
 				console.log("Headless index.html loaded");
 				var launcher = enyo.application.launcher = new PwdHashAppLaunch();
 
-				enyo.applicationRelaunchHandler = function (params) {
-					enyo.application.launcher.relaunch(params);
+				enyo.applicationRelaunchHandler = function(params) {
+					enyo.application.launcher.launch(params);
 				};
 
-				launcher.startup();
+				launcher.launch({});
 			})();
 		</script>
 	</body>

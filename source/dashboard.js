@@ -31,11 +31,11 @@ components: [
 	{
 		kind:					enyo.Image,
 		src:					"../lock-small.png",
-		onclick:				"goaway"
+		onclick:				"clear"
 	},
 	{
 		kind:					enyo.VFlexBox,
-		onclick:				"goaway",
+		onclick:				"clear",
 		flex:					1,
 		className:				"info",
 		components: [
@@ -89,13 +89,6 @@ copy: function(value)
 	enyo.dom.setClipboard(value);
 
 	enyo.windows.addBannerMessage($L("Password Copied"), "{}");
-/*
-	enyo.application.dashboard.setLayers([{
-		icon:		"lock-small.png",
-		title:		"Password Copied",
-		text:		"Tap to clear clipboard"
-	}]);
-*/
 },
 
 clear: function()
@@ -107,11 +100,7 @@ clear: function()
 	enyo.dom.setClipboard(" ");
 
 	enyo.windows.addBannerMessage($L("Cleared clipboard"), "{}");
-},
 
-goaway: function()
-{
-	this.clear();
 	window.close();
 }
 

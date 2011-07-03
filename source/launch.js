@@ -12,8 +12,9 @@ openCard: function(type, params)
 	return(enyo.windows.activate(base + path, type, params));
 },
 
-startup: function() {
-	this.openCard("main", {});
+launch: function(params)
+{
+	this.openCard("main", params || {});
 }
 
 });
