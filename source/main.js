@@ -15,11 +15,6 @@
 */
 
 // TODO	Allow launching with a URI
-
-// TODO	Show the license needed in the about page somewhere
-
-// TODO	Show info about PwdHash
-
 // TODO	Allow other apps to call this as using enyo.CrossAppUI?
 
 enyo.kind(
@@ -44,6 +39,10 @@ components: [
 		kind:											enyo.AppMenu,
 
 		components: [
+			{
+				caption:								"About PwdHash",
+				onclick:								"openAbout"
+			}
 		]
 	},
 
@@ -213,6 +212,44 @@ components: [
 				}]
 			}
 		]
+	},
+
+	{
+		name:											"about",
+		kind:											"ModalDialog",
+		width:											"400px",
+
+		components: [{
+			layoutKind:									"VFlexLayout",
+			pack:										"center",
+
+			components: [
+				{
+					className:							"enyo-text-header",
+					kind:								enyo.Control,
+					nodeTag:							"h3",
+					style:								"padding-left: 1em;",
+					content:							"About PwdHash"
+				},
+				{
+					kind:								enyo.FadeScroller,
+					height:								"400px",
+					components: [
+						{
+							kind:						enyo.HtmlContent,
+							className:					"eny-text-body",
+							style:						"padding: 1em;",
+							srcId:						"about"
+						}
+					]
+				},
+				{
+					caption:							$L("Close"),
+					kind:								"Button",
+					onclick:							"closeAbout"
+				}
+			]
+		}]
 	}
 ],
 
@@ -368,6 +405,16 @@ searchDomain: function(sender, e)
 	}
 
 	this.$.domains.refresh();
+},
+
+openAbout: function()
+{
+	this.$.about.openAtCenter();
+},
+
+closeAbout: function()
+{
+	this.$.about.close();
 }
 
 });
