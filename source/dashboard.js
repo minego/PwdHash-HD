@@ -52,11 +52,16 @@ components: [
 
 create: function()
 {
+	this.destroy = enyo.bind(this, this.destroy);
+	window.addEventListener('unload', this.destroy);
+
 	this.inherited(arguments);
 },
 
 destroy: function()
 {
+	window.removeEventListener('unload', this.destroy);
+
 	this.clear();
 	this.inherited(arguments);
 },
@@ -107,7 +112,7 @@ clear: function()
 goaway: function()
 {
 	this.clear();
-	enyo.windows.fetchWindow("dash").close();
+	window.close();
 }
 
 });
