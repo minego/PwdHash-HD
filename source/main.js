@@ -239,7 +239,8 @@ components: [
 							kind:						enyo.HtmlContent,
 							className:					"eny-text-body",
 							style:						"padding: 1em;",
-							srcId:						"about"
+							srcId:						"about",
+							onLinkClick:				"linkClick"
 						}
 					]
 				},
@@ -343,12 +344,7 @@ reset: function()
 open: function()
 {
 	var domain = this.$.domain.getValue();
-
-	if (0 != domain.indexOf("http://")) {
-		window.open("http://" + domain);
-	} else {
-		window.open(domain);
-	}
+	this.linkClick(this, domain);
 },
 
 clear: function()
@@ -415,6 +411,15 @@ openAbout: function()
 closeAbout: function()
 {
 	this.$.about.close();
+},
+
+linkClick: function(sender, url)
+{
+	if (0 != url.indexOf("http://") && 0 != url.indexOf("https://")) {
+		window.open("http://" + url);
+	} else {
+		window.open(url);
+	}
 }
 
 });
