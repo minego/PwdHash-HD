@@ -43,10 +43,17 @@ components: [
 
 	{
 		name:											"AppMenu",
-		kind:											"AppMenu",
+		kind:											enyo.AppMenu,
 
 		components: [
 		]
+	},
+
+	{
+		name:											"dashboard",
+		kind:											enyo.Dashboard,
+		onTap:											"clear",
+		onUserClose:									"clear"
 	},
 
 	{
@@ -281,11 +288,14 @@ copy: function()
 {
 	this.clipboardValue = this.value;
 	enyo.dom.setClipboard(this.value);
-	enyo.windows.addBannerMessage($L("Password Copied.  Will clear in 30s"), "{}");
 
-	setTimeout(enyo.bind(this, this.clear), 30000);
+	enyo.windows.addBannerMessage($L("Password Copied"), "{}");
+	this.$.dashboard.setLayers([{
+		icon:		"lock-small.png",
+		title:		"Password Copied",
+		text:		"Tap to clear clipboard"
+	}]);
 
-	/* Add the domain to the recent domain list */
 	if (-1 == enyo.indexOf(this.$.domain.getValue(), this.domains)) {
 		this.domains.push(this.$.domain.getValue());
 
@@ -317,17 +327,17 @@ open: function()
 	}
 },
 
+// TODO	GRR, setClipboard() doesn't work at all without a body... weird
+//
+//		Figure out how to do a noWindow app and keep a hidden document around
+//		until the dashboard is cleared?
 clear: function()
 {
-	enyo.dom.getClipboard(enyo.bind(this, function(value)
-	{
-		if (this.clipboardValue && this.clipboardValue == value) {
-			this.clipboardValue = null;
+	/* An empty string doesn't work, so use a space */
+	enyo.dom.setClipboard(" ");
 
-			enyo.dom.setClipboard(" ");
-			enyo.windows.addBannerMessage($L("Cleared clipboard."), "{}");
-		}
-	}));
+	this.$.dashboard.pop();
+	enyo.windows.addBannerMessage($L("Cleared clipboard."), "{}");
 },
 
 setupDomain: function(sender, index)

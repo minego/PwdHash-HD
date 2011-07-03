@@ -18,7 +18,7 @@ appinfo:
 all: appinfo
 	rm -rf .tmp 2>/dev/null || true
 	mkdir .tmp
-	cp -r appinfo.json source css index.html depends.js icon.png .tmp
+	cp -r appinfo.json source css index.html depends.js *.png .tmp
 	palm-package .tmp
 	rm -rf .tmp
 
