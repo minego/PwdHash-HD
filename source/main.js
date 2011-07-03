@@ -22,6 +22,8 @@
 
 // TODO	Allow other apps to call this as using enyo.CrossAppUI?
 
+// TODO	Use a dashboard to show "Password Copied.  Tap to clear."
+
 enyo.kind(
 {
 
@@ -42,7 +44,9 @@ components: [
 	{
 		name:											"AppMenu",
 		kind:											"AppMenu",
-		onBeforeOpen:									"beforeMenu"
+
+		components: [
+		]
 	},
 
 	{
@@ -235,12 +239,6 @@ rendered: function()
 
 	this.$.domain.forceFocusEnableKeyboard();
 	this.change();
-},
-
-beforeMenu: function(sender, e)
-{
-	// TODO	Update the menu
-	sender.render();
 },
 
 openAppMenu: function(sender, e)
