@@ -17,34 +17,42 @@
 enyo.kind(
 {
 
-name:							"net.minego.pwdhash.dashboard",
-kind:							enyo.HFlexBox,
-align:							"center",
-className:						"notification",
+name:								"net.minego.pwdhash.popup",
+kind:								enyo.VFlexBox,
+align:								"center",
+className:							"notification",
 
 components: [
 	{
-		name:					"appEvent",
-		kind:					"ApplicationEvents",
-		onWindowParamsChange:	"change"
+		name:						"appEvent",
+		kind:						"ApplicationEvents",
+		onWindowParamsChange:		"change"
 	},
+
 	{
-		kind:					enyo.Image,
-		src:					"../lock-small.png",
-		onclick:				"showPass"
-	},
-	{
-		kind:					enyo.VFlexBox,
-		onclick:				"showPass",
-		flex:					1,
-		className:				"info",
+		kind:						enyo.HFlexBox,
 		components: [
 			{
-				className:		"title",
-				content:		$L("Password Copied")
+				kind:				enyo.Image,
+				src:				"../lock-small.png",
+				onclick:			"close"
 			},
 			{
-				content:		$L("Tap to show, slide to clear clipboard")
+				kind:				enyo.VFlexBox,
+				flex:				1,
+				className:			"info",
+				onclick:			"close",
+				components: [
+					{
+						className:	"title",
+						content:	$L("PwdHash Generated Password")
+					},
+					{
+						name:		'password',
+						content:	'',
+						style:		'font-family: monospace; font-size: 24px; font-weight: bold;'
+					}
+				]
 			}
 		]
 	}
@@ -52,6 +60,8 @@ components: [
 
 create: function()
 {
+	this.log();
+
 	this.destroy = enyo.bind(this, this.destroy);
 	window.addEventListener('unload', this.destroy);
 
@@ -60,9 +70,10 @@ create: function()
 
 destroy: function()
 {
+	this.log();
+
 	window.removeEventListener('unload', this.destroy);
 
-	this.clear();
 	this.inherited(arguments);
 },
 
@@ -71,48 +82,35 @@ change: function()
 	this.log(enyo.windowParams);
 
 	if (enyo.windowParams.value) {
-		this.copy(enyo.windowParams.value);
+		this.log(enyo.windowParams.value);
+		this.$.password.setContent(enyo.windowParams.value);
 	} else {
-		this.clear();
+		this.$.password.setContent('');
 	}
-},
-
-
-
-/*
-	Manage the dashboard from the launcher so that the dashboard items can still
-	be used after the window has been closed.
-*/
-copy: function(value)
-{
-	this.value = value;
-
-	this.log(value);
-	enyo.dom.setClipboard(value);
-
-	enyo.windows.addBannerMessage($L("Password Copied"), "{}");
 },
 
 clear: function()
 {
 	this.log();
 
-	/* An empty string doesn't work, so use a space */
-	enyo.dom.setClipboard("ignore me");
-	enyo.dom.setClipboard(" ");
-
-	enyo.windows.addBannerMessage($L("Cleared clipboard"), "{}");
+	/*
+		Reopen the dashboard with a null value. It will take care of clearing
+		the clipboard and hiding itself.
+	*/
+	enyo.windows.openDashboard("../dashboard/index.html", "dash", {
+		value:						null
+	}, {
+		clickableWhenLocked:		true
+	});
 
 	window.close();
 },
 
-
-showPass: function()
+close: function()
 {
 	this.log();
 
-	enyo.windows.openPopup("../popup/index.html", "showpass",
-		{ value: this.value }, { }, 50, false);
+	window.close();
 }
 
 });
