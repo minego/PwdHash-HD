@@ -11,8 +11,11 @@ release: clean
 
 ################################################################################
 
-appinfo:
-	svn info | grep "Last Changed Rev" | sed 's/.*: *//' | sed 's/\(.*\)\([0-9][0-9]\)/s\/autoversion\/1.\1.\2\//' > .version
+.active:
+	ln -s release .active || true
+
+appinfo: .active
+	git log --pretty=format:'' | wc -l | sed 's/\(.*\)/s\/autoversion\/2.0.\1\//' > .version
 	cat .active/appinfo.json | sed -f .version > appinfo.json
 
 all: appinfo
@@ -20,7 +23,6 @@ all: appinfo
 	mkdir .tmp
 	cp -r appinfo.json window dashboard popup source css index.html depends.js *.png .tmp
 	palm-package .tmp
-	rm -rf .tmp
 
 install: all
 	palm-install *.ipk
