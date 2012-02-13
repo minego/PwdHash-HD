@@ -3,47 +3,15 @@
 	<head>
 		<title>PwdHash</title>
 		<script src="/opt/PalmSDK/Current/share/refcode/framework/enyo/1.0/framework/enyo.js" type="text/javascript"></script>
+		<script src="../enyo/framework/enyo.js" type="text/javascript"></script>
 
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+		<meta name="viewport" content="width=device-width initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	</head>
 
 	<body id="body">
 		<script type="text/javascript">
 			new net.minego.pwdhash().renderInto(document.body);
 		</script>
-
-		<div id="about" style="display: none;">
-			<p>
-				PwdHash HD for webOS was developed by
-				<a href="http://www.minego.net/pwdhash/">minego</a> using the
-				resources listed below.
-			</p>
-
-			<p>
-				This app is provided "as is" with no warranties expressed or
-				implied.  Use at your own risk.
-			</p>
-
-			<p>
-				The <a href="http://www.pwdhash.com/">Stanford PwdHash</a>
-				provides an easy and secure method of creating a unique password
-				for every site you visit.
-			</p>
-
-			<p>
-				The password is created by creating a hash of the site's domain
-				name, and a master password.  The result is that you only have
-				to remember one password, but you get the benefits of having
-				a different password on each site.
-			</p>
-
-			<p>
-				This application uses the same source and algorithms as the
-				<a href="http://www.pwdhash.com/">Stanford PwdHash</a> site.
-				If you use the chrome or firefox plugin then the password
-				generated will be the same.
-			</p>
-		</div>
 	</body>
 </html>

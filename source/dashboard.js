@@ -24,8 +24,8 @@ className:						"notification",
 
 components: [
 	{
+		kind:					enyo.ApplicationEvents,
 		name:					"appEvent",
-		kind:					"ApplicationEvents",
 		onWindowParamsChange:	"change"
 	},
 	{

@@ -1,50 +1,40 @@
-# PwdHash Pro
-################################################################################
+APP			:= pwdhash
+VENDOR		:= net.minego
+APPID		:= $(VENDOR).$(APP)
+PKG			:= PwdHashHD
+VERSION		:= 2.0.$(shell git log --pretty=format:'' | wc -l | sed 's/ *//')
 
-debug: clean
-	rm -rf .active 2>/dev/null || true
-	ln -s debug .active
+debug:
+	@rm -rf .active 2>/dev/null || true
+	@ln -s debug .active
 
-release: clean
-	rm -rf .active 2>/dev/null || true
-	ln -s release .active
+release:
+	@rm -rf .active 2>/dev/null || true
+	@ln -s release .active
 
 ################################################################################
 
 .active:
-	ln -s release .active || true
+	@ln -s release .active || true
 
-appinfo: .active
-	git log --pretty=format:'' | wc -l | sed 's/\(.*\)/s\/autoversion\/2.0.\1\//' > .version
-	cat .active/appinfo.json | sed -f .version > appinfo.json
+appinfo.json: .active
+	@cat .active/appinfo.json | sed -e s/autoversion/$(VERSION)/ > appinfo.json
 
-all: appinfo
-	rm -rf .tmp 2>/dev/null || true
-	mkdir .tmp
-	cp -r appinfo.json window dashboard popup source css index.html depends.js *.png .tmp
-	palm-package .tmp
 
-install: all
-	palm-install *.ipk
+################################################################################
+# Load the platform specific rules
+################################################################################
 
-clean:
-	rm *.ipk 2>/dev/null || true
-	rm -rf .tmp 2>/dev/null || true
-	rm .version appinfo.json || true
+ifndef PLATFORM
 
-appid:
-	grep '"id"' .active/appinfo.json | cut -d: -f2 | cut -d'"' -f2 > .active/appid
+%:
+	@echo "The PLATFORM variable must be set to \"webos\" or \"playbook\"."
+	@false
 
-launch: install appid
-	palm-launch -i `cat .active/appid`
+else
 
-log: appid
-	-palm-log -f `cat .active/appid` | sed -u							\
-		-e 's/\[[0-9]*-[0-9]*:[0-9]*:[0-9]*\.[0-9]*\] [a-zA-Z]*: //'	\
-		-e 's/indicated new content, but not active./\n\n\n/'
+include $(PLATFORM).mk
 
-test: launch log
-	true
+endif
 
-.PHONY: beta debug release clean appinfo
-
+################################################################################

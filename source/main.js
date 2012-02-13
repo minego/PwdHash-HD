@@ -25,7 +25,7 @@ kind:													enyo.VFlexBox,
 
 components: [
 	{
-		kind:											"ApplicationEvents",
+		kind:											enyo.ApplicationEvents,
 		onWindowActivated:								"activated",
 		onWindowDeactivated:							"deactivated",
 		onWindowShown:									"activated",
@@ -47,7 +47,7 @@ components: [
 	},
 
 	{
-		kind:											"SlidingPane",
+		kind:											enyo.SlidingPane,
 		flex:											1,
 		components: [
 			{
@@ -98,6 +98,8 @@ components: [
 								layoutKind:				"VFlexLayout",
 								pack:					"center",
 								tapHighlight:			true,
+								confirmRequired:		false,
+
 								components: [
 									{
 										name:			"title",
@@ -127,6 +129,8 @@ components: [
 						{
 							kind:						enyo.Header,
 							width:						"100%",
+							name:						"TitleBar",
+
 							components: [{
 								kind:					enyo.VFlexBox,
 								flex:					1,
@@ -155,7 +159,8 @@ components: [
 										selectAllOnFocus:
 														true,
 										autoCapitalize:	"lowercase",
-										onchange:		"change"
+										onchange:		"valueChanged",
+										onblur:			"saveDomain"
 									}]
 								},
 								{
@@ -170,19 +175,27 @@ components: [
 										changeOnInput:	true,
 										selectAllOnFocus:
 														true,
-										onchange:		"change"
+										onchange:		"valueChanged"
 									}]
 								},
 
 								{
 									kind:				enyo.RowGroup,
 									caption:			$L("Generated Password"),
+
 									components: [
 										{
-											name:		"generated",
+											name:		"generatedControl",
 											kind:		enyo.Control,
 											content:	"<br/>"
+										},
+										{
+											name:		"generatedInput",
+											kind:		enyo.Input,
+											selectAllOnFocus:
+															true,
 										}
+
 									]
 								},
 
@@ -190,21 +203,27 @@ components: [
 									kind:				enyo.Button,
 									caption:			$L("Copy Password"),
 									name:				"copy",
-									onclick:			"copy"
+									onclick:			"copyPass"
 								},
 
 								{
 									kind:				enyo.Button,
 									caption:			$L("Reset Details"),
 									name:				"reset",
-									onclick:			"reset"
+									onclick:			"resetForm"
 								},
 
 								{
 									kind:				enyo.Button,
 									caption:			$L("Launch Browser"),
-									name:				"open",
-									onclick:			"open"
+									name:				"openURL",
+									onclick:			"openURL"
+								},
+
+								{
+									kind:				enyo.Button,
+									caption:			$L("About"),
+									onclick:			"openAbout"
 								}
 							]
 						}
@@ -216,7 +235,7 @@ components: [
 
 	{
 		name:											"about",
-		kind:											"ModalDialog",
+		kind:											enyo.ModalDialog,
 		width:											"400px",
 
 		components: [{
@@ -239,14 +258,45 @@ components: [
 							kind:						enyo.HtmlContent,
 							className:					"eny-text-body",
 							style:						"padding: 1em;",
-							srcId:						"about",
-							onLinkClick:				"linkClick"
+							onLinkClick:				"linkClick",
+							content: [
+								"<p>",
+								"	This app is provided \"as is\" with no warranties expressed or",
+								"	implied.  Use at your own risk.",
+								"</p>",
+								"",
+								"<p>",
+								"	PwdHash HD was developed by",
+								"	<a href=\"http://www.github.com/minego/PwdHash-HD/\">minego</a>",
+								"	using the resources listed below.",
+								"</p>",
+								"",
+								"<p>",
+								"	The <a href=\"http://www.pwdhash.com/\">Stanford PwdHash</a>",
+								"	provides an easy and secure method of creating a unique password",
+								"	for every site you visit.",
+								"</p>",
+								"",
+								"<p>",
+								"	The password is created by creating a hash of the site's domain",
+								"	name, and a master password.  The result is that you only have",
+								"	to remember one password, but you get the benefits of having",
+								"	a different password on each site.",
+								"</p>",
+								"",
+								"<p>",
+								"	This application uses the same source and algorithms as the",
+								"	<a href=\"http://www.pwdhash.com/\">Stanford PwdHash</a> site.",
+								"	If you use the chrome or firefox plugin then the password",
+								"	generated will be the same.",
+								"</p>"
+							].join('\n')
 						}
 					]
 				},
 				{
 					caption:							$L("Close"),
-					kind:								"Button",
+					kind:								enyo.Button,
 					onclick:							"closeAbout"
 				}
 			]
@@ -256,15 +306,30 @@ components: [
 
 create: function()
 {
+	this.inherited(arguments);
+
 	this.value = null;
+
+	var json = null;
+
+	if (window.localStorage) {
+		json = window.localStorage.getItem("recentdomains");
+	}
+
+	if (!json) {
+		json = enyo.getCookie("recentdomains");
+	}
+
 	try {
-		this.domains = enyo.json.parse(enyo.getCookie("recentdomains"));
-		this.log(this.domains);
+		if (json) {
+			this.domains = enyo.json.parse(json);
+			this.log(this.domains);
+		} else {
+			this.domains = [];
+		}
 	} catch(e) {
 		this.domains = [];
 	}
-
-	this.inherited(arguments);
 
 	enyo.keyboard.setResizesWindow(true);
 },
@@ -274,7 +339,19 @@ rendered: function()
 	this.inherited(arguments);
 
 	this.$.domain.forceFocusEnableKeyboard();
-	this.change();
+	this.valueChanged();
+
+	if (net.minego.nocopy) {
+		this.$.copy.destroy();
+		this.$.generatedControl.destroy();
+	} else {
+		this.$.generatedInput.destroy();
+	}
+
+	if (net.minego.playbook) {
+		/* Hide the toolbar to make room for the keyboard */
+		this.$.TitleBar.destroy();
+	}
 },
 
 openAppMenu: function(sender, e)
@@ -287,11 +364,23 @@ closeAppMenu: function()
 	this.$.AppMenu.close();
 },
 
-change: function()
+valueChanged: function()
 {
-	var uri		= this.$.domain.getValue();
-	var pass	= this.$.password.getValue();
+	var uri;
+	var pass;
 	var domain;
+
+	try {
+		uri = this.$.domain.getValue();
+	} catch (e) {
+		uri = '';
+	}
+
+	try {
+		pass = this.$.password.getValue();
+	} catch (e) {
+		pass = '';
+	}
 
 	if (uri.length > 0 && pass.length > 0) {
 		domain = (new SPH_DomainExtractor()).extractDomain(uri);
@@ -300,48 +389,89 @@ change: function()
 		this.value = null;
 	}
 
-	if (this.value) {
-		this.$.generated.setAllowHtml(false);
-		this.$.generated.setContent(this.value);
-	} else {
-		this.$.generated.setAllowHtml(true);
-		this.$.generated.setContent('<br />');
+	if (this.generatedControl) {
+		if (this.value) {
+			this.$.generatedControl.setAllowHtml(false);
+			this.$.generatedControl.setContent(this.value);
+		} else {
+			this.$.generatedControl.setAllowHtml(true);
+			this.$.generatedControl.setContent('<br />');
+		}
 	}
 
-	this.$.open.setDisabled(uri.length == 0);
+	if (this.$.generatedInput) {
+		this.$.generatedInput.setValue(this.value || '');
+	}
+
+	this.$.openURL.setDisabled(uri.length == 0);
 	this.$.reset.setDisabled(pass.length == 0 && uri.length == 0);
-	this.$.copy.setDisabled(!this.value);
-},
 
-copy: function()
-{
-	enyo.windows.openDashboard("../dashboard/index.html", "dash", {
-		value:						this.value
-	}, {
-		clickableWhenLocked:		true
-	});
-
-	if (-1 == enyo.indexOf(this.$.domain.getValue(), this.domains)) {
-		this.domains.push(this.$.domain.getValue());
-
-		/* Save the list */
-		enyo.setCookie("recentdomains", enyo.json.stringify(this.domains));
-		this.$.domains.refresh();
+	if (this.$.copy) {
+		this.$.copy.setDisabled(!this.value);
 	}
 },
 
-reset: function()
+copyPass: function()
+{
+	if (!window.PalmSystem) {
+		enyo.dom.setClipboard(this.value);
+	} else {
+		enyo.windows.openDashboard("../dashboard/index.html", "dash", {
+			value:						this.value
+		}, {
+			clickableWhenLocked:		true
+		});
+	}
+
+	this.saveDomain();
+},
+
+saveDomain: function(domain)
+{
+	var last;
+
+	if (!domain || "string" !== typeof domain) {
+		domain = this.$.domain.getValue();
+	}
+
+	if (!domain || !domain.length) {
+		return;
+	}
+
+	if (-1 != enyo.indexOf(domain, this.domains)) {
+		/* Already there */
+		return;
+	}
+
+	this.domains.push(domain);
+
+	/* Save the list */
+	if (window.localStorage) {
+		window.localStorage.setItem("recentdomains", enyo.json.stringify(this.domains));
+	}
+
+	enyo.setCookie("recentdomains", enyo.json.stringify(this.domains));
+	this.$.domains.refresh();
+},
+
+resetForm: function()
 {
 	this.$.domain.setValue('');
 	this.$.password.setValue('');
 
-	this.$.generated.setAllowHtml(true);
-	this.$.generated.setContent('<br />');
+	if (this.$.generatedControl) {
+		this.$.generatedControl.setAllowHtml(true);
+		this.$.generatedControl.setContent('<br />');
+	}
 
-	this.change();
+	if (this.$.generatedInput) {
+		this.$.generatedInput.setValue('');
+	}
+
+	this.valueChanged();
 },
 
-open: function()
+openURL: function()
 {
 	var domain = this.$.domain.getValue();
 	this.linkClick(this, domain);
@@ -378,7 +508,7 @@ selectDomain: function(sender, e, index)
 
 	if ((domain = this.domains[index])) {
 		this.$.domain.setValue(domain);
-		this.change();
+		this.valueChanged();
 
 		this.$.password.forceFocusEnableKeyboard();
 	}
@@ -388,6 +518,11 @@ deleteDomain: function(sender, index)
 {
 	if (this.domains[index]) {
 		this.domains.splice(index, 1);
+
+		if (window.localStorage) {
+			window.localStorage.setItem("recentdomains", enyo.json.stringify(this.domains));
+		}
+
 		enyo.setCookie("recentdomains", enyo.json.stringify(this.domains));
 		this.$.domains.refresh();
 	}
@@ -416,9 +551,14 @@ closeAbout: function()
 linkClick: function(sender, url)
 {
 	if (0 != url.indexOf("http://") && 0 != url.indexOf("https://")) {
-		window.open("http://" + url);
-	} else {
-		window.open(url);
+		url = "http://" + url;
+	}
+
+	try {
+		blackberry.invoke.invoke(blackberry.invoke.APP_BROWSER,
+			new blackberry.invoke.BrowserArguments(url));
+	} catch (e) {
+		window.open(url, '_blank');
 	}
 }
 
