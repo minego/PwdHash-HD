@@ -8,6 +8,18 @@
 # Set PASSWORD to the password of the key to use when signing the package. If
 # not set then a debug build will be created.
 
+
+# The webworks SDK has to be modified to let the user copy/paste in the app. The
+# instructions can be found at:
+#   http://www.willw.net/enabling-copy-and-paste-in-a-webworks-app-for-the-blackberry-playbook/
+#
+#	Modify bbwp/AirAppTemplates/src/blackberry-tablet.xml and set the following
+#	values to "true":
+#		WEBKIT_CONTEXT_MENU_SUPPORTED
+#		WEBKIT_SELECTION_SUPPORTED
+#
+# All apps built with the SDK after this will have them enabled!
+
 BBWP		:= /Developer/SDKs/Research\ In\ Motion/BlackBerry\ WebWorks\ SDK\ for\ TabletOS\ 2.2.0.5/bbwp/bbwp
 RIMSDK		:= /Developer/SDKs/Research\ In\ Motion/BlackBerry\ WebWorks\ SDK\ for\ TabletOS\ 2.2.0.5/bbwp/blackberry-tablet-sdk/bin/
 BAR			:= $(PKG).bar
