@@ -12,7 +12,7 @@ BBWP		:= /Developer/SDKs/Research\ In\ Motion/BlackBerry\ WebWorks\ SDK\ for\ Ta
 RIMSDK		:= /Developer/SDKs/Research\ In\ Motion/BlackBerry\ WebWorks\ SDK\ for\ TabletOS\ 2.2.0.5/bbwp/blackberry-tablet-sdk/bin/
 BAR			:= $(PKG).bar
 ZIP			:= $(PKG).zip
-BUILDID		:= 1
+BUILDID		:= 6
 
 ifndef ENYODIR
 ENYODIR		:= ../enyo-1.0-r1/

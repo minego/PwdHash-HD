@@ -38,199 +38,158 @@ components: [
 		name:											"AppMenu",
 		kind:											enyo.AppMenu,
 
-		components: [
-			{
-				caption:								"About PwdHash",
-				onclick:								"openAbout"
-			}
-		]
+		components: [{
+			caption:									"About PwdHash",
+			onclick:									"openAbout"
+		}]
 	},
 
 	{
 		kind:											enyo.SlidingPane,
 		flex:											1,
-		components: [
-			{
-				name:									"list",
-				width:									"320px",
+		components: [{
+			name:										"list",
+			width:										"320px",
 
-				components: [
-					{
-						kind:							enyo.Header,
-						width:							"100%",
-						components: [{
-							kind:						enyo.VFlexBox,
-							flex:						1,
-							align:						"center",
-							components: [{
-								content:				$L("Recent Domains")
-							}]
-						}]
-					},
-					{
-						name:							"searchBox",
-						className:						"enyo-box-input",
-						kind:							enyo.SearchInput,
-						hint:							$L("Search"),
+			components: [{
+				kind:									enyo.Header,
+				width:									"100%",
+				components: [{
+					kind:								enyo.VFlexBox,
+					flex:								1,
+					align:								"center",
+					components: [{
+						content:						$L("Recent Domains")
+					}]
+				}]
+			}, {
+				name:									"searchBox",
+				className:								"enyo-box-input",
+				kind:									enyo.SearchInput,
+				hint:									$L("Search"),
 
-						onchange:						"searchDomain",
-						onCancel:						"searchDomain",
-						changeOnInput:					true
-					},
-
-					{
-						kind:							enyo.FadeScroller,
-						horizontal:						false,
-						flex:							1,
-
-						components: [{
-							name:						"domains",
-							kind:						enyo.VirtualList,
-							onSetupRow:					"setupDomain",
-
-							components: [{
-								onclick:				"selectDomain",
-								onConfirm:				"deleteDomain",
-
-								name:					"item",
-								kind:					enyo.SwipeableItem,
-								className:				"toaster-item",
-								layoutKind:				"VFlexLayout",
-								pack:					"center",
-								tapHighlight:			true,
-								confirmRequired:		false,
-
-								components: [
-									{
-										name:			"title",
-										className:		"url-item-title enyo-text-ellipsis"
-									},
-									{
-										name:			"url",
-										className:		"url-item-url enyo-item-ternary enyo-text-ellipsis"
-									}
-								]
-							}]
-                        }]
-					}
-				]
-			},
-
-			{
-				name:									"details",
+				onchange:								"searchDomain",
+				onCancel:								"searchDomain",
+				changeOnInput:							true
+			}, {
+				kind:									enyo.FadeScroller,
+				horizontal:								false,
 				flex:									1,
+
+				components: [{
+					name:								"domains",
+					kind:								enyo.VirtualList,
+					onSetupRow:							"setupDomain",
+
+					components: [{
+						onclick:						"selectDomain",
+						onConfirm:						"deleteDomain",
+
+						name:							"item",
+						kind:							enyo.SwipeableItem,
+						className:						"toaster-item",
+						layoutKind:						"VFlexLayout",
+						pack:							"center",
+						tapHighlight:					true,
+						confirmRequired:				false,
+
+						components: [{
+							name:						"title",
+							className:					"url-item-title enyo-text-ellipsis"
+						}, {
+							name:						"url",
+							className:					"url-item-url enyo-item-ternary enyo-text-ellipsis"
+						}]
+					}]
+				}]
+			}]
+		}, {
+			name:										"details",
+			flex:										1,
+			align:										"center",
+
+			components: [{
+				kind:									enyo.VFlexBox,
 				align:									"center",
 
 				components: [{
-					kind:								enyo.VFlexBox,
-					align:								"center",
+					kind:								enyo.Header,
+					width:								"100%",
+					name:								"TitleBar",
 
-					components: [
-						{
-							kind:						enyo.Header,
-							width:						"100%",
-							name:						"TitleBar",
+					components: [{
+						kind:							enyo.VFlexBox,
+						flex:							1,
+						align:							"center",
+						components: [{
+							content:					$L("Generate Password")
+						}]
+					}]
+				}, {
+					kind:								enyo.Control,
+					style:								"margin: 5px auto 0; width: 90%;",
 
-							components: [{
-								kind:					enyo.VFlexBox,
-								flex:					1,
-								align:					"center",
-								components: [{
-									content:			$L("Generate Password")
-								}]
-							}]
-						},
-						{
-							kind:						enyo.Control,
-							style:						"margin: 23px auto 0; width: 85%;",
+					components: [{
+						kind:							enyo.RowGroup,
+						caption:						$L("Domain"),
+						components: [{
+							name:						"domain",
+							kind:						enyo.Input,
+							hint:						$L("Enter Site Address"),
 
-							components: [
-								{
-									kind:				enyo.RowGroup,
-									caption:			$L("Domain"),
-									components: [{
-										name:			"domain",
-										kind:			enyo.Input,
-										hint:			$L("Site Address"),
+							autocorrect:				false,
+							inputType:					"url",
+							changeOnInput:				true,
+							selectAllOnFocus:			true,
+							autoCapitalize:				"lowercase",
+							onchange:					"valueChanged",
+							onblur:						"saveDomain"
+						}]
+					},{
+						kind:							enyo.RowGroup,
+						caption:						$L("Master Password"),
+						components: [{
+							name:						"password",
+							kind:						enyo.PasswordInput,
+							hint:						$L("Enter Password"),
 
-										autocorrect:	false,
-										inputType:		"url",
-										changeOnInput:	true,
-										selectAllOnFocus:
-														true,
-										autoCapitalize:	"lowercase",
-										onchange:		"valueChanged",
-										onblur:			"saveDomain"
-									}]
-								},
-								{
-									kind:				enyo.RowGroup,
-									caption:			$L("Master Password"),
-									components: [{
-										name:			"password",
-										kind:			enyo.PasswordInput,
-										hint:			$L("Password"),
-
-										autocorrect:	false,
-										changeOnInput:	true,
-										selectAllOnFocus:
-														true,
-										onchange:		"valueChanged"
-									}]
-								},
-
-								{
-									kind:				enyo.RowGroup,
-									caption:			$L("Generated Password"),
-
-									components: [
-										{
-											name:		"generatedControl",
-											kind:		enyo.Control,
-											content:	"<br/>"
-										},
-										{
-											name:		"generatedInput",
-											kind:		enyo.Input,
-											selectAllOnFocus:
-															true,
-										}
-
-									]
-								},
-
-								{
-									kind:				enyo.Button,
-									caption:			$L("Copy Password"),
-									name:				"copy",
-									onclick:			"copyPass"
-								},
-
-								{
-									kind:				enyo.Button,
-									caption:			$L("Reset Details"),
-									name:				"reset",
-									onclick:			"resetForm"
-								},
-
-								{
-									kind:				enyo.Button,
-									caption:			$L("Launch Browser"),
-									name:				"openURL",
-									onclick:			"openURL"
-								},
-
-								{
-									kind:				enyo.Button,
-									caption:			$L("About"),
-									onclick:			"openAbout"
-								}
-							]
-						}
-					]
+							autocorrect:				false,
+							changeOnInput:				true,
+							selectAllOnFocus:			true,
+							onchange:					"valueChanged"
+						}]
+					},{
+						kind:							enyo.RowGroup,
+						caption:						$L("Generated Password"),
+						components: [{
+							name:						"generated",
+							kind:						enyo.Input,
+							selectAllOnFocus:			true,
+							hint:						""
+						}]
+					}, {
+						kind:							enyo.Button,
+						caption:						$L("Copy Password"),
+						name:							"copy",
+						onclick:						"copyPass"
+					}, {
+						kind:							enyo.Button,
+						caption:						$L("Reset Details"),
+						name:							"reset",
+						onclick:						"resetForm"
+					}, {
+						kind:							enyo.Button,
+						caption:						$L("Launch Browser"),
+						name:							"openURL",
+						onclick:						"openURL"
+					}, {
+						kind:							enyo.Button,
+						caption:						$L("About"),
+						onclick:						"openAbout"
+					}]
 				}]
-			}
-		]
+			}]
+		}]
 	},
 
 	{
@@ -242,58 +201,54 @@ components: [
 			layoutKind:									"VFlexLayout",
 			pack:										"center",
 
-			components: [
-				{
-					className:							"enyo-text-header",
-					kind:								enyo.Control,
-					nodeTag:							"h3",
-					style:								"padding-left: 1em;",
-					content:							"About PwdHash"
-				},
-				{
-					kind:								enyo.FadeScroller,
-					height:								"400px",
-					components: [
-						{
-							kind:						enyo.HtmlContent,
-							className:					"eny-text-body",
-							style:						"padding: 1em;",
-							onLinkClick:				"linkClick",
-							content: [
-								"<p>",
-								"	This app is provided \"as is\" with no warranties expressed or",
-								"	implied.  Use at your own risk.",
-								"</p>",
-								"",
-								"<p>",
-								"	PwdHash HD was developed by",
-								"	<a href=\"http://www.github.com/minego/PwdHash-HD/\">minego</a>",
-								"	using the resources listed below.",
-								"</p>",
-								"",
-								"<p>",
-								"	The <a href=\"http://www.pwdhash.com/\">Stanford PwdHash</a>",
-								"	provides an easy and secure method of creating a unique password",
-								"	for every site you visit.",
-								"</p>",
-								"",
-								"<p>",
-								"	The password is created by creating a hash of the site's domain",
-								"	name, and a master password.  The result is that you only have",
-								"	to remember one password, but you get the benefits of having",
-								"	a different password on each site.",
-								"</p>",
-								"",
-								"<p>",
-								"	This application uses the same source and algorithms as the",
-								"	<a href=\"http://www.pwdhash.com/\">Stanford PwdHash</a> site.",
-								"	If you use the chrome or firefox plugin then the password",
-								"	generated will be the same.",
-								"</p>"
-							].join('\n')
-						}
-					]
-				},
+			components: [{
+				className:								"enyo-text-header",
+				kind:									enyo.Control,
+				nodeTag:								"h3",
+				style:									"padding-left: 1em;",
+				content:								"About PwdHash"
+			}, {
+				kind:									enyo.FadeScroller,
+				height:									"400px",
+				components: [{
+					kind:								enyo.HtmlContent,
+					className:							"eny-text-body",
+					style:								"padding: 1em;",
+					onLinkClick:						"linkClick",
+					content: [
+						"<p>",
+						"	This app is provided \"as is\" with no warranties expressed or",
+						"	implied.  Use at your own risk.",
+						"</p>",
+						"",
+						"<p>",
+						"	PwdHash HD was developed by",
+						"	<a href=\"http://www.github.com/minego/PwdHash-HD/\">minego</a>",
+						"	using the resources listed below.",
+						"</p>",
+						"",
+						"<p>",
+						"	The <a href=\"http://www.pwdhash.com/\">Stanford PwdHash</a>",
+						"	provides an easy and secure method of creating a unique password",
+						"	for every site you visit.",
+						"</p>",
+						"",
+						"<p>",
+						"	The password is created by creating a hash of the site's domain",
+						"	name, and a master password.  The result is that you only have",
+						"	to remember one password, but you get the benefits of having",
+						"	a different password on each site.",
+						"</p>",
+						"",
+						"<p>",
+						"	This application uses the same source and algorithms as the",
+						"	<a href=\"http://www.pwdhash.com/\">Stanford PwdHash</a> site.",
+						"	If you use the chrome or firefox plugin then the password",
+						"	generated will be the same.",
+						"</p>"
+					].join('\n')
+				}]
+			},
 				{
 					caption:							$L("Close"),
 					kind:								enyo.Button,
@@ -332,6 +287,21 @@ create: function()
 	}
 
 	enyo.keyboard.setResizesWindow(true);
+
+	try {
+		/*
+			The WebWorks SDK for the PlayBook does not support clipboard access
+			out of the box, but it may be allowed with the use of an extension.
+
+			If the extension is present then we should use it. If not then the
+			password should be displayed as a text input instead so that the
+			user can copy the text manually.
+		*/
+		if (net.minego.nocopy && blackberry.clipboard.setText) {
+			net.minego.nocopy = false;
+		}
+	} catch (e) {
+	}
 },
 
 rendered: function()
@@ -342,14 +312,19 @@ rendered: function()
 	this.valueChanged();
 
 	if (net.minego.nocopy) {
+		/*
+			Get rid of the copy button if there is no supported way to copy the
+			text on this platform.
+		*/
 		this.$.copy.destroy();
-		this.$.generatedControl.destroy();
-	} else {
-		this.$.generatedInput.destroy();
 	}
 
 	if (net.minego.playbook) {
-		/* Hide the toolbar to make room for the keyboard */
+		/*
+			Hide the title bar to save room so that more can fit on the screen
+			on the playbook, since it's screen isn't very tall.
+		*/
+
 		this.$.TitleBar.destroy();
 	}
 },
@@ -389,32 +364,30 @@ valueChanged: function()
 		this.value = null;
 	}
 
-	if (this.generatedControl) {
-		if (this.value) {
-			this.$.generatedControl.setAllowHtml(false);
-			this.$.generatedControl.setContent(this.value);
-		} else {
-			this.$.generatedControl.setAllowHtml(true);
-			this.$.generatedControl.setContent('<br />');
-		}
-	}
-
-	if (this.$.generatedInput) {
-		this.$.generatedInput.setValue(this.value || '');
-	}
+	this.$.generated.setValue(this.value || '');
 
 	this.$.openURL.setDisabled(uri.length == 0);
 	this.$.reset.setDisabled(pass.length == 0 && uri.length == 0);
 
 	if (this.$.copy) {
+		this.$.copy.setCaption($L("Copy Password"));
 		this.$.copy.setDisabled(!this.value);
 	}
 },
 
 copyPass: function()
 {
+	if (this.$.copy) {
+		this.$.copy.setDisabled(true);
+		this.$.copy.setCaption($L("Password Copied"));
+	}
+
 	if (!window.PalmSystem) {
-		enyo.dom.setClipboard(this.value);
+		try {
+			blackberry.clipboard.setText(this.value);
+		} catch (e) {
+			enyo.dom.setClipboard(this.value);
+		}
 	} else {
 		enyo.windows.openDashboard("../dashboard/index.html", "dash", {
 			value:						this.value
@@ -459,15 +432,7 @@ resetForm: function()
 	this.$.domain.setValue('');
 	this.$.password.setValue('');
 
-	if (this.$.generatedControl) {
-		this.$.generatedControl.setAllowHtml(true);
-		this.$.generatedControl.setContent('<br />');
-	}
-
-	if (this.$.generatedInput) {
-		this.$.generatedInput.setValue('');
-	}
-
+	this.$.generated.setValue('');
 	this.valueChanged();
 },
 

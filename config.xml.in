@@ -8,10 +8,13 @@
     <description>A tool to generate site specific passwords</description>
     <author rim:copyright="2012">Micah N Gorrell</author>
 
+	<feature id="blackberry.system" required="true" version="1.0.0" />
 	<feature id="blackberry.app.event" required="true" version="1.0.0" />
 
 	<feature id="blackberry.invoke" required="true" version="1.0.0" />
 	<feature id="blackberry.invoke.BrowserArguments" required="true" version="1.0.0" />
+
+	<feature id="blackberry.clipboard" />
 
     <icon src="icon-86.png"/>
 
